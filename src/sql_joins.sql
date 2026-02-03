@@ -47,6 +47,9 @@ INSERT INTO Orders VALUES
 (104, 4, 450.00, '2024-01-18'),
 (105, NULL, 900.00, '2024-01-20');  -- orphan order (no customer)
 
+SELECT * FROM Customers;
+SELECT * FROM Orders;
+
 
 /* =========================================================
    STEP 6: INNER JOIN
@@ -101,7 +104,7 @@ SELECT
     o.order_amount
 FROM Customers c
 FULL OUTER JOIN Orders o
-ON c.customer_id = o.customer_id;
+ON c.customer_id = o.customer_id;  --union of left join and right join
 
 
 /* =========================================================
@@ -112,7 +115,7 @@ SELECT
     c.customer_name,
     o.order_id
 FROM Customers c
-CROSS JOIN Orders o;
+CROSS JOIN Orders o; --- dont have on clause....what it does is cartesian product ....its process is like a nested for loop (i stays in one pos , j traverse full list, after i moves to second and j same)
 
 
 /* =========================================================
@@ -125,7 +128,7 @@ SELECT
     c1.city
 FROM Customers c1
 JOIN Customers c2
-ON c1.city = c2.city
+ON c1.city = c2.city 
 AND c1.customer_id <> c2.customer_id;
 
 
@@ -175,3 +178,10 @@ FROM Customers c
 LEFT JOIN Orders o
 ON c.customer_id = o.customer_id
 WHERE o.customer_id IS NULL;
+
+
+SELECT  DISTINCT c.*
+FROM Customers c
+JOIN Orders o
+ON o.customer_id = c.customer_id;
+ 
