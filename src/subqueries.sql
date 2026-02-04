@@ -22,5 +22,16 @@ HAVING SUM(Salary) = (
 select max(list_sal) from (select sum(Salary) as list_sal from Employees group by DeptId) t ; -- cheking the subquery first
 
 
+--correlated subqueries.
+
+-- ques: find the Employee whose salary is greater than the avg salary of his particular department
+
+Select * from Employees e
+where Salary > (
+
+select avg(salary) from Employees where DeptId = e.DeptId   -- this will return the avg of the particular department that the outer query passes .... it depends on the property of outer query
+)
+
+
 
 select * from Employees;
