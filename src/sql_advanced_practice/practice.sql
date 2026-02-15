@@ -2,51 +2,6 @@ USE SQL_PRACTICE;
 
 GO
 
-/*
-
-CREATE TABLE Employees (
-    emp_id INT,
-    emp_name VARCHAR(50),
-    department VARCHAR(50),
-    salary INT,
-    hire_date DATE
-);
-
-INSERT INTO Employees VALUES
-(1, 'Ravi', 'IT', 10000, '2021-01-10'),
-(2, 'Meena', 'IT', 9000, '2021-03-15'),
-(3, 'Karthik', 'IT', 9000, '2022-07-20'),
-(4, 'Arjun', 'HR', 8000, '2020-05-12'),
-(5, 'Divya', 'HR', 7000, '2021-08-01'),
-(6, 'Sneha', 'HR', 7000, '2022-09-17'),
-(7, 'Vikram', 'Finance', 12000, '2019-11-11'),
-(8, 'Priya', 'Finance', 11000, '2020-02-25'),
-(9, 'Ajay', 'Finance', NULL, '2023-01-01'),
-(10, 'Anu', 'IT', 10000, '2023-04-10');
-
---- TABLE 2: Orders ---
-
-CREATE TABLE Orders (
-    order_id INT,
-    customer_name VARCHAR(50),
-    order_date DATE,
-    amount INT
-);
-
-INSERT INTO Orders VALUES
-(101, 'Ravi', '2023-01-01', 500),
-(102, 'Ravi', '2023-01-05', 700),
-(103, 'Meena', '2023-02-01', 1000),
-(104, 'Meena', '2023-02-10', 1200),
-(105, 'Meena', '2023-03-01', 800),
-(106, 'Arjun', '2023-01-15', 400),
-(107, 'Divya', '2023-02-20', 900),
-(108, 'Sneha', '2023-03-25', 600);
-*/
-
-
-
-
 --LEVEL 1 – Basics & Ranking
 --1. Find the 3rd highest distinct salary.
 --2. Find the 2nd highest salary per department.
@@ -146,5 +101,104 @@ Select department,salary,count(*) over (partition by department,salary) as count
 t
 
 group by department
+
+
+--L1 5 find employees hired in last 2 years
+
+Select * 
+from Employees
+where hire_date > = DATEADD(year,-2,GETDATE())
+
+
+--L2 1 Assign row number per department based on salary
+
+Select emp_name,department,row_number()
+
+over (partition by department order by salary) as number
+
+from Employees;
+
+--L2 2 show running of salary per department
+
+Select emp_name,department,sum(salary)
+
+over (partition by department) as total_dept_salary 
+
+from Employees;
+
+
+--L2 3 find top 2 highest paid Employee per department 
+
+
+Select  emp_name,salary,department 
+
+from
+
+(
+
+Select emp_name,salary,department,dense_rank()
+
+over (partition by department order by salary desc) as ranks
+
+from Employees
+
+) t
+
+where ranks <=2
+
+--L2 4 show previous salary
+
+Select emp_name,salary, lag(salary) -- lag needs order by compulsorily
+
+over (partition by department order by salary) as previous_salary
+
+from Employees
+
+
+--l2 5 show salary difference of previous employees
+
+Select emp_name,salary, salary-lag(salary)
+
+over (partition by department order by salary) as salary_diff
+
+from employees;
+
+
+--l3 1 if no third highest salary exist return null
+
+
+Select emp_name,department, salary
+
+from (
+
+Select emp_name,department,salary,dense_rank() 
+
+over (partition by department order by salary desc) as ranks
+
+from Employees
+
+) d
+
+where ranks = 3
+
+--l3 2 remove duplicate salaries but keep one recored...
+
+
+Select department,salary 
+
+from 
+(
+
+Select department,salary,row_number() 
+
+over (partition by department,salary order by salary ) as counts 
+
+from Employees
+)t
+
+where counts = 1
+
+
+
 
 
